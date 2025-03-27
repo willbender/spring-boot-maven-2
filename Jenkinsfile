@@ -2,7 +2,8 @@
 
 config = [
     dockerImage: true,
-    mvnVersion: '3.9-eclipse-temurin-23'
+    dockerRegistry: 'ghcr.io/willbender/',
+    mvnVersion: '3.9-eclipse-temurin-22'
 ]
 
 javaMavenPipeline(config)
