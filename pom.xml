@@ -21,13 +21,12 @@
 		<developer/>
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection>scm:git:git://github.com/willbender/spring-boot-maven-2.git</connection>
+		<developerConnection>scm:git:git://github.com/willbender/spring-boot-maven-2.git</developerConnection>
+		<url>scm:git:git://github.com/willbender/spring-boot-maven-2.git</url>
 	</scm>
 	<properties>
-		<java.version>24</java.version>
+		<java.version>23</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -50,6 +49,74 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.6.0</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<sourcepath>target/generated-sources/delombok</sourcepath>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.10</version>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal> 
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>3.4.0</version>
+				<configuration>
+					<from>
+						<image>eclipse-temurin:23.0.2_7-jre</image>
+					</from>
+					<containerizingMode>packaged</containerizingMode>
+					<allowInsecureRegistries>true</allowInsecureRegistries>
+					<container>
+						<!-- in order to dynamically load certificates, we use the existing entrypoint and pass the command as arguments -->
+						<!-- see https://github.com/GoogleContainerTools/jib/tree/master/jib-maven-plugin#custom-container-entrypoint -->
+						<entrypoint>INHERIT</entrypoint>
+						<args>
+							<arg>java</arg>
+							<!-- we use '-Dlog4j2.formatMsgNoLookups=true' to be protected against the log4shell vulnerability -->
+							<!-- eventually we can get rid of this when all artifacts use a safe log4j version -->
+							<arg>-Dlog4j2.formatMsgNoLookups=true</arg>
+							<arg>-cp</arg>
+							<arg>@/app/jib-classpath-file</arg>
+							<arg>@/app/jib-main-class-file</arg>
+							<arg>--logging.file.name=/app/logs/${project.artifactId}.log</arg>
+						</args>
+						<workingDirectory>/app</workingDirectory>
+						<ports>
+							<port>8080</port>
+						</ports>
+						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+					</container>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
