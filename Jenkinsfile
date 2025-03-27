@@ -2,7 +2,7 @@
 
 config = [
     dockerImage: true,
-    dockerRegistry: 'ghcr.io/willbender/',
+    dockerRegistry: 'ghcr.io/willbender',
     mvnVersion: '3.9-eclipse-temurin-21'
 ]
 
